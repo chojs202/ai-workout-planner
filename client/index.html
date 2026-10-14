@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="AI Workout Planner & Tracker" />
+    <meta name="theme-color" content="#0c0e10" />
+
+    <title>Fit Plan</title>
+
+    <style>
+      body {
+        margin: 0;
+        background: #e5e7eb;
+      }
+
+      #boot-screen {
+        box-sizing: border-box;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+
+        width: 100%;
+        max-width: 480px;
+        min-height: 100vh;
+        min-height: 100dvh;
+        margin: 0 auto;
+        padding: clamp(12px, 4vw, 20px);
+
+        color: #f5f7f8;
+        background: #0c0e10;
+        font-family: "Pretendard", sans-serif;
+        text-align: center;
+      }
+
+      #boot-screen .boot-logo {
+        display: block;
+        width: clamp(80px, 22vw, 104px);
+        height: clamp(80px, 22vw, 104px);
+        object-fit: contain;
+      }
+
+      #boot-screen .boot-name {
+        margin: 0;
+        font-size: clamp(26px, 7vw, 32px);
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+      }
+
+      #boot-screen .boot-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 12px;
+        color: #a0a8b0;
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+      }
+
+      #boot-screen .boot-dots {
+        display: grid;
+        grid-template-columns: repeat(3, 6px);
+        align-items: center;
+        gap: 6px;
+        width: 30px;
+        height: 12px;
+        animation: boot-dots 1.6s steps(1, end) infinite;
+      }
+
+      #boot-screen .boot-dots > span {
+        display: block;
+        width: 6px;
+        height: 6px;
+        background: #79e2be;
+        border-radius: 50%;
+      }
+
+      @keyframes boot-dots {
+        0% {
+          clip-path: inset(0 100% 0 0);
+        }
+
+        20% {
+          clip-path: inset(0 66.666% 0 0);
+        }
+
+        40% {
+          clip-path: inset(0 33.333% 0 0);
+        }
+
+        60%,
+        100% {
+          clip-path: inset(0 0 0 0);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        #boot-screen .boot-dots {
+          animation: none;
+          clip-path: none;
+        }
+      }
+    </style>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-jp-dynamic-subset.min.css"
+    />
+  </head>
+
+  <body>
+    <div id="root">
+      <div id="boot-screen" role="status" aria-label="Fit Plan loading">
+        <img
+          class="boot-logo"
+          src="/src/assets/fit-plan-icon.svg"
+          alt=""
+          width="104"
+          height="104"
+        />
+
+        <p class="boot-name">Fit Plan</p>
+        <div class="boot-loading" aria-hidden="true">
+          <span>Loading</span>
+
+          <span class="boot-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
