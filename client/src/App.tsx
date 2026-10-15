@@ -1,4 +1,10 @@
-import { lazy, Suspense, useSyncExternalStore } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext";
 import BottomNav from "./components/layout/BottomNav";
@@ -30,6 +36,14 @@ const DeleteAccountPage = lazy(() => import("./pages/DeleteAccountPage"));
 const LogoutPage = lazy(() => import("./pages/LogoutPage"));
 const PasswordResetPage = lazy(() => import("./pages/PasswordResetPage"));
 
+const AuthLoadingPage = styled.div`
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--color-background);
+`;
+
 const RequestLoadingCard = styled.div`
   position: fixed;
   top: 50%;
@@ -54,6 +68,23 @@ function App() {
   const { pathname } = useLocation();
   const { user, isAuthLoading, authErrorMessage } = useAuth();
 
+  const [showInitialSplash, setShowInitialSplash] = useState(
+    () => document.documentElement.dataset.bootSplash === "true",
+  );
+
+  useEffect(() => {
+    if (isAuthLoading) {
+      return;
+    }
+
+    try {
+      sessionStorage.setItem("fit-plan:splash-seen", "true");
+    } catch {
+      // 저장소를 사용할 수 없어도 앱은 계속 실행합니다.
+    }
+
+    setShowInitialSplash(false);
+  }, [isAuthLoading]);
   const { language } = useTranslation();
 
   const isRequestLoading = useSyncExternalStore(
@@ -69,7 +100,11 @@ function App() {
   }[language];
 
   if (isAuthLoading) {
-    return <LoadingScreen splash />;
+    return (
+      <AuthLoadingPage>
+        <LoadingScreen splash={showInitialSplash} message={loadingMessage} />
+      </AuthLoadingPage>
+    );
   }
 
   const showBottomNav =

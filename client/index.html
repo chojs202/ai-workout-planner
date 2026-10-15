@@ -7,7 +7,20 @@
     <meta name="theme-color" content="#0c0e10" />
 
     <title>Fit Plan</title>
+    <script>
+      (() => {
+        let showSplash = true;
 
+        try {
+          showSplash =
+            sessionStorage.getItem("fit-plan:splash-seen") !== "true";
+        } catch {
+          // 저장소를 사용할 수 없으면 기본 시작 화면을 표시합니다.
+        }
+
+        document.documentElement.dataset.bootSplash = String(showSplash);
+      })();
+    </script>
     <style>
       body {
         margin: 0;
@@ -105,6 +118,14 @@
           animation: none;
           clip-path: none;
         }
+      }
+      html[data-boot-splash="false"] #boot-screen .boot-logo,
+      html[data-boot-splash="false"] #boot-screen .boot-name {
+        display: none;
+      }
+
+      html[data-boot-splash="false"] #boot-screen .boot-loading {
+        margin-top: 0;
       }
     </style>
 
