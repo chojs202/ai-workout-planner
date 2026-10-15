@@ -13,6 +13,7 @@ import {
 import type { Routine } from "../types/routine";
 import type { RoutineFormData } from "../types/routineForm";
 import { showSuccessToast } from "../utils/successToast";
+import { usePageLoading } from "../hooks/usePageLoading";
 
 const Page = styled.main`
   min-height: 100dvh;
@@ -52,6 +53,8 @@ function EditRoutinePage() {
   const [routine, setRoutine] = useState<Routine | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<RoutineError>("");
+
+  usePageLoading(isLoading);
 
   useEffect(() => {
     let isMounted = true;

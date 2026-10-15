@@ -8,6 +8,7 @@ import type { Routine } from "../types/routine";
 import { useTranslation } from "../hooks/useTranslation";
 import { ApiRequestError } from "../api/translatedRequest";
 import type { TranslationKey } from "../i18n/translations";
+import { usePageLoading } from "../hooks/usePageLoading";
 
 interface CalendarDate {
   dateKey: string;
@@ -699,6 +700,10 @@ function WorkoutCalendarPage() {
 
   const [isLoading, setIsLoading] = useState(true);
 
+  usePageLoading(isLoading);
+
+  const [loadAttempt, setLoadAttempt] = useState(0);
+
   const [errorMessage, setErrorMessage] = useState<TranslationKey | "">("");
 
   useEffect(() => {
@@ -745,7 +750,7 @@ function WorkoutCalendarPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [loadAttempt]);
 
   useEffect(() => {
     if (!isMonthPickerOpen) {
@@ -911,7 +916,19 @@ function WorkoutCalendarPage() {
         <Description>{t("calendarDescription")}</Description>
 
         {!isLoading && errorMessage && (
-          <ErrorMessage role="alert">{t(errorMessage)}</ErrorMessage>
+          <>
+            <ErrorMessage role="alert">{t(errorMessage)}</ErrorMessage>
+
+            <StartWorkoutButton
+              type="button"
+              onClick={() => {
+                setIsLoading(true);
+                setLoadAttempt((value) => value + 1);
+              }}
+            >
+              {t("retry")}
+            </StartWorkoutButton>
+          </>
         )}
 
         {!isLoading && !errorMessage && (

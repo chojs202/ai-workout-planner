@@ -7,6 +7,8 @@ import type { Routine, RoutineGoal } from "../types/routine";
 import { useTranslation } from "../hooks/useTranslation";
 import type { TranslationKey } from "../i18n/translations";
 import { ApiRequestError } from "../api/translatedRequest";
+import { usePageLoading } from "../hooks/usePageLoading";
+
 const Page = styled.main`
   width: 100%;
   padding: 24px var(--page-padding);
@@ -175,6 +177,8 @@ function MyRoutinesPage() {
   const [routineErrorMessage, setRoutineErrorMessage] = useState<
     TranslationKey | ""
   >("");
+  usePageLoading(isLoadingRoutines);
+  
   useEffect(() => {
     let isMounted = true;
     if (!user) {

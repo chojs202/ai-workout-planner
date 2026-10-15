@@ -22,6 +22,7 @@ import CommonModal, {
   ModalButton,
 } from "../components/common/CommonModal";
 import { showSuccessToast } from "../utils/successToast";
+import { usePageLoading } from "../hooks/usePageLoading";
 
 const Page = styled.main`
   width: 100%;
@@ -1444,6 +1445,9 @@ function RoutineDetailPage() {
   const [routine, setRoutine] = useState<Routine | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<RoutineDetailMessage>("");
+
+  usePageLoading(isLoading);
+
   const [startingRoutineDayId, setStartingRoutineDayId] = useState<
     string | null
   >(null);

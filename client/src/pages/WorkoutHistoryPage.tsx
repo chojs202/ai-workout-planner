@@ -14,6 +14,8 @@ import type { AiWorkoutFeedback } from "../types/aiFeedback";
 import { useTranslation } from "../hooks/useTranslation";
 import type { TranslationKey } from "../i18n/translations";
 import { ApiRequestError } from "../api/translatedRequest";
+import { usePageLoading } from "../hooks/usePageLoading";
+
 type HistoryPeriod = "all" | "7" | "30" | "90";
 type HistorySort = "latest" | "oldest" | "completed_sets";
 const HISTORY_PAGE_SIZE = 3;
@@ -531,6 +533,9 @@ function WorkoutHistoryPage() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<TranslationKey | "">("");
+
+  usePageLoading(isLoading);
+
   const [feedback, setFeedback] = useState<AiWorkoutFeedback | null>(null);
   const [feedbackWorkoutCount, setFeedbackWorkoutCount] = useState(0);
   const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false);

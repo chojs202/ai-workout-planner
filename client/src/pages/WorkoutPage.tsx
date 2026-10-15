@@ -19,6 +19,7 @@ import CommonModal, {
   ModalButton,
 } from "../components/common/CommonModal";
 import { showSuccessToast } from "../utils/successToast";
+import { usePageLoading } from "../hooks/usePageLoading";
 
 type WorkoutMessage =
   | ""
@@ -1492,6 +1493,8 @@ function WorkoutPage() {
 
   const [errorMessage, setErrorMessage] = useState<WorkoutMessage>("");
 
+  usePageLoading(isLoading);
+
   const [setDrafts, setSetDrafts] = useState<Record<string, SetDraft>>({});
 
   const [deletedExerciseIds, setDeletedExerciseIds] = useState<string[]>([]);
@@ -1737,6 +1740,11 @@ function WorkoutPage() {
 
   useEffect(() => {
     let isMounted = true;
+
+    setIsLoading(true);
+    setErrorMessage("");
+    setWorkout(null);
+
     setExerciseOverrides({});
     setExerciseEditor(null);
     setEditedWorkoutDate("");

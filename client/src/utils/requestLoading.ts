@@ -1,8 +1,11 @@
-const LOADING_DELAY_MS = 200;
+const SHOW_DELAY_MS = 200;
 
 let pendingCount = 0;
 let isVisible = false;
+
 let showTimer: ReturnType<typeof setTimeout> | undefined;
+let hideFrame: number | undefined;
+let finalHideFrame: number | undefined;
 
 const listeners = new Set<() => void>();
 
@@ -16,6 +19,18 @@ function setVisible(value: boolean): void {
   listeners.forEach((listener) => {
     listener();
   });
+}
+
+function cancelHide(): void {
+  if (hideFrame !== undefined) {
+    cancelAnimationFrame(hideFrame);
+    hideFrame = undefined;
+  }
+
+  if (finalHideFrame !== undefined) {
+    cancelAnimationFrame(finalHideFrame);
+    finalHideFrame = undefined;
+  }
 }
 
 export function subscribeRequestLoading(
@@ -32,17 +47,27 @@ export function getRequestLoading(): boolean {
   return isVisible;
 }
 
-export function beginRequestLoading(): () => void {
+export function beginRequestLoading(
+  options: { immediate?: boolean } = {},
+): () => void {
   pendingCount += 1;
+  cancelHide();
 
-  if (pendingCount === 1 && !isVisible) {
+  if (options.immediate) {
+    if (showTimer !== undefined) {
+      clearTimeout(showTimer);
+      showTimer = undefined;
+    }
+
+    setVisible(true);
+  } else if (!isVisible && showTimer === undefined) {
     showTimer = setTimeout(() => {
       showTimer = undefined;
 
       if (pendingCount > 0) {
         setVisible(true);
       }
-    }, LOADING_DELAY_MS);
+    }, SHOW_DELAY_MS);
   }
 
   let finished = false;
@@ -55,13 +80,31 @@ export function beginRequestLoading(): () => void {
     finished = true;
     pendingCount -= 1;
 
-    if (pendingCount === 0) {
-      if (showTimer !== undefined) {
-        clearTimeout(showTimer);
-        showTimer = undefined;
-      }
-
-      setVisible(false);
+    if (pendingCount !== 0) {
+      return;
     }
+
+    if (showTimer !== undefined) {
+      clearTimeout(showTimer);
+      showTimer = undefined;
+    }
+
+    if (!isVisible) {
+      return;
+    }
+
+    cancelHide();
+
+    hideFrame = requestAnimationFrame(() => {
+      hideFrame = undefined;
+
+      finalHideFrame = requestAnimationFrame(() => {
+        finalHideFrame = undefined;
+
+        if (pendingCount === 0) {
+          setVisible(false);
+        }
+      });
+    });
   };
 }
