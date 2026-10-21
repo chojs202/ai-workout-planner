@@ -451,4 +451,5 @@ export const jaTranslations = {
     passwordResetForgotPassword: "パスワードをお忘れですか？",
     loginEmailNotFound: "登録されていないメールアドレスです。メールアドレスを確認するか、新規登録してください。",
     loginInvalidPassword: "パスワードが正しくありません。",
+    passwordResetEmailNotFound: "このメールアドレスは登録されていません。",
 } as const satisfies Record<keyof typeof koTranslations, string>;

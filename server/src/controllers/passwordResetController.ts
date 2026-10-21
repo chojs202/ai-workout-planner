@@ -129,9 +129,11 @@ export async function requestPasswordReset(
             .select("_id tokenVersion")
             .lean();
 
-        // 가입 여부를 응답으로 구분하지 않습니다.
+        // 가입되지 않은 이메일에는 인증코드를 발급하지 않습니다.
         if (!user) {
-            return acceptedEmailRequest(response);
+            return response.status(404).json({
+                code: "PASSWORD_RESET_EMAIL_NOT_FOUND",
+            });
         }
 
         const userId = user._id.toString();

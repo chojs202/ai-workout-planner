@@ -147,6 +147,8 @@ export async function getCurrentUser(): Promise<CurrentUserResponse> {
     throw new AuthRequestError("serviceNotConfigured");
   }
 
+  const requestSignal = AbortSignal.timeout(30_000);
+
   let response: Response;
 
   try {
@@ -155,10 +157,15 @@ export async function getCurrentUser(): Promise<CurrentUserResponse> {
       {
         method: "GET",
         credentials: "include",
+        signal: requestSignal,
       },
     );
   } catch {
-    throw new AuthRequestError("networkError");
+    throw new AuthRequestError(
+      requestSignal.aborted
+        ? "serverUnavailable"
+        : "networkError",
+    );
   }
 
   if (!response.ok) {
@@ -188,7 +195,12 @@ export async function getCurrentUser(): Promise<CurrentUserResponse> {
   try {
     data = await response.json();
   } catch {
-    throw new AuthRequestError("invalidServerResponse");
+    throw new AuthRequestError(
+      requestSignal.aborted
+        ? "serverUnavailable"
+        : "invalidServerResponse",
+      response.status,
+    );
   }
 
   if (!isLoginResponse(data)) {

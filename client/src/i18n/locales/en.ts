@@ -450,4 +450,5 @@ export const enTranslations = {
     passwordResetForgotPassword: "Forgot your password?",
     loginEmailNotFound: "This email address is not registered. Check your email address or create an account.",
     loginInvalidPassword: "The password is incorrect.",
+    passwordResetEmailNotFound: "This email address is not registered.",
 } as const satisfies Record<keyof typeof koTranslations, string>;

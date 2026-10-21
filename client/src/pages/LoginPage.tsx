@@ -160,6 +160,37 @@ const ErrorMessage = styled.p`
   overflow-wrap: anywhere;
 `;
 
+const AuthErrorMessage = styled(ErrorMessage)`
+  margin-bottom: 20px;
+`;
+
+const RetryAuthButton = styled.button`
+  display: block;
+  min-height: 44px;
+  margin: 4px 0 -4px auto;
+  padding: 8px 4px;
+
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+
+  &:hover:not(:disabled) {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 const SignupGuide = styled.p`
   margin-top: 24px;
   color: var(--color-text-muted);
@@ -202,8 +233,14 @@ const AboutLink = styled(SignupLink)`
 `;
 
 function LoginPage() {
-  const { user, isAuthLoading, authErrorMessage, setUser, retryAuth } =
-    useAuth();
+  const {
+    user,
+    isAuthLoading,
+    isAuthRetrying,
+    authErrorMessage,
+    setUser,
+    retryAuth,
+  } = useAuth();
 
   const { t, language } = useTranslation();
 
@@ -218,6 +255,7 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isBusy = isSubmitting || isAuthRetrying;
 
   const [errorKey, setErrorKey] = useState<TranslationKey | null>(null);
 
@@ -226,10 +264,9 @@ function LoginPage() {
   ): Promise<void> {
     event.preventDefault();
 
-    if (isSubmitting) {
+    if (isBusy) {
       return;
     }
-
     setErrorKey(null);
 
     const normalizedEmail = email.trim().toLowerCase();
@@ -302,29 +339,7 @@ function LoginPage() {
     );
   }
 
-  if (authErrorMessage) {
-    return (
-      <Page>
-        <LoginCard>
-          <LanguageSelector />
-          <Title>{t("authCheckFailedTitle")}</Title>
-
-          <ErrorMessage role="alert">{authErrorMessage}</ErrorMessage>
-
-          <SubmitButton
-            type="button"
-            onClick={() => {
-              void retryAuth();
-            }}
-            disabled={isAuthLoading}
-          >
-            {t("retry")}
-          </SubmitButton>
-        </LoginCard>
-      </Page>
-    );
-  }
-  if (user) {
+  if (user && !authErrorMessage) {
     return <Navigate to="/calendar" replace />;
   }
 
@@ -344,6 +359,22 @@ function LoginPage() {
 
         <Description>{t("loginDescription")}</Description>
 
+        {authErrorMessage && (
+          <AuthErrorMessage role="alert">
+            {authErrorMessage}
+
+            <RetryAuthButton
+              type="button"
+              onClick={() => {
+                void retryAuth();
+              }}
+              disabled={isAuthLoading || isBusy}
+            >
+              {isAuthRetrying ? t("authChecking") : t("retry")}
+            </RetryAuthButton>
+          </AuthErrorMessage>
+        )}
+
         <Form onSubmit={handleSubmit} noValidate>
           <Field>
             <Label htmlFor="email">{t("emailLabel")}</Label>
@@ -357,7 +388,7 @@ function LoginPage() {
                 setEmail(event.target.value);
               }}
               autoComplete="email"
-              disabled={isSubmitting}
+              disabled={isBusy}
             />
           </Field>
 
@@ -373,7 +404,7 @@ function LoginPage() {
                 setPassword(event.target.value);
               }}
               autoComplete="current-password"
-              disabled={isSubmitting}
+              disabled={isBusy}
             />
           </Field>
 
@@ -381,7 +412,7 @@ function LoginPage() {
             <ErrorMessage role="alert">{displayedError}</ErrorMessage>
           )}
 
-          <SubmitButton type="submit" disabled={isSubmitting}>
+          <SubmitButton type="submit" disabled={isBusy}>
             {isSubmitting ? t("loginSubmitting") : t("loginTitle")}
           </SubmitButton>
         </Form>

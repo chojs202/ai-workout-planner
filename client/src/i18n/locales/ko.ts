@@ -448,4 +448,5 @@ export const koTranslations = {
     passwordResetForgotPassword: "비밀번호를 잊으셨나요?",
     loginEmailNotFound: "가입되지 않은 이메일입니다. 이메일을 확인하거나 회원가입해주세요.",
     loginInvalidPassword: "비밀번호가 올바르지 않습니다.",
+    passwordResetEmailNotFound: "가입되지 않은 이메일입니다.",
 } as const;

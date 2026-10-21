@@ -72,6 +72,9 @@ function getErrorKey(
 
     if (isRecord(data)) {
         switch (data.code) {
+            case "PASSWORD_RESET_EMAIL_NOT_FOUND":
+                return "passwordResetEmailNotFound";
+                
             case "PASSWORD_RESET_INVALID_REQUEST":
                 return "apiInvalidRequest";
 
