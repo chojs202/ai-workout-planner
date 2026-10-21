@@ -191,11 +191,28 @@ const ForgotPasswordLink = styled(SignupLink)`
   text-align: center;
 `;
 
+const AboutLink = styled(SignupLink)`
+  display: block;
+  margin-top: 24px;
+  padding: 12px 8px 0;
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+  font-size: 13px;
+  text-align: center;
+`;
+
 function LoginPage() {
   const { user, isAuthLoading, authErrorMessage, setUser, retryAuth } =
     useAuth();
 
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+
+  const aboutLabel = {
+    ko: "Fit Plan 서비스 소개",
+    ja: "Fit Planについて",
+    en: "About Fit Plan",
+  }[language];
+
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -373,8 +390,10 @@ function LoginPage() {
         </ForgotPasswordLink>
         <SignupGuide>
           {t("signupGuide")}{" "}
-          <SignupLink to="/signup"> {t("signupLink")}</SignupLink>
+          <SignupLink to="/signup">{t("signupLink")}</SignupLink>
         </SignupGuide>
+
+        <AboutLink to="/about">{aboutLabel}</AboutLink>
       </LoginCard>
     </Page>
   );

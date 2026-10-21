@@ -121,6 +121,14 @@ const pageTitleRoutes: PageTitleRoute[] = [
       en: "Log out",
     },
   },
+  {
+    path: "/about",
+    titles: {
+      ko: "서비스 소개",
+      ja: "サービス紹介",
+      en: "About",
+    },
+  },
 ];
 
 function PageTitle() {

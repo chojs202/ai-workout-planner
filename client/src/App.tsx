@@ -38,6 +38,7 @@ const DeleteAccountPage = lazy(() => import("./pages/DeleteAccountPage"));
 const LogoutPage = lazy(() => import("./pages/LogoutPage"));
 const PasswordResetPage = lazy(() => import("./pages/PasswordResetPage"));
 const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
 
 const LoadingOverlay = styled.div`
   position: fixed;
@@ -143,6 +144,7 @@ function App() {
 
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignupPage />} />
+                <Route path="/about" element={<AboutPage />} />
 
                 <Route
                   path="/routines"

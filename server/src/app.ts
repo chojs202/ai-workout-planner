@@ -68,6 +68,7 @@ if (process.env.NODE_ENV === "production") {
     /^\/workouts\/[^/]+\/?$/i,
     /^\/profile\/?$/i,
     /^\/profile\/delete\/?$/i,
+    /^\/about\/?$/i,
   ];
 
   app.use(
