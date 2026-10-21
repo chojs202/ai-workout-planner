@@ -5,16 +5,15 @@ import type {
   Request,
   Response,
 } from "express";
+import cookieParser from "cookie-parser";
+import { extname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { userRouter } from "./routes/userRoutes.js";
 import { authRouter } from "./routes/authRoutes.js";
 import { routineRouter } from "./routes/routineRoutes.js";
 import { aiRoutineRouter } from "./routes/aiRoutineRoutes.js";
-import {
-  workoutRouter,
-} from "./routes/workoutRoutes.js";
-import cookieParser from "cookie-parser";
-import { extname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { workoutRouter } from "./routes/workoutRoutes.js";
 
 export const app = express();
 
@@ -32,19 +31,89 @@ app.use("/api/users", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/routines", routineRouter);
 app.use("/api/ai/routines", aiRoutineRouter);
-app.use(
-  "/api/workouts",
-  workoutRouter,
-);
+app.use("/api/workouts", workoutRouter);
 
 app.get("/api/health", (_request, response) => {
   response.status(200).json({ status: "ok" });
 });
 
+// 존재하지 않는 API에는 JSON으로 404를 반환합니다.
+app.use("/api", (_request, response) => {
+  response.status(404).json({
+    code: "API_NOT_FOUND",
+    message: "존재하지 않는 API입니다.",
+  });
+});
+
+if (process.env.NODE_ENV === "production") {
+  const clientDistPath = fileURLToPath(
+    new URL("../../client/dist/", import.meta.url),
+  );
+
+  // App.tsx에 등록된 화면 주소입니다.
+  const pagePaths = [
+    /^\/$/i,
+    /^\/login\/?$/i,
+    /^\/signup\/?$/i,
+    /^\/logout\/?$/i,
+    /^\/password-reset\/?$/i,
+    /^\/dashboard\/?$/i,
+    /^\/calendar\/?$/i,
+    /^\/routines\/?$/i,
+    /^\/routines\/new\/?$/i,
+    /^\/routines\/ai\/?$/i,
+    /^\/routines\/[^/]+\/edit\/?$/i,
+    /^\/routines\/[^/]+\/?$/i,
+    /^\/workouts\/?$/i,
+    /^\/workouts\/[^/]+\/?$/i,
+    /^\/profile\/?$/i,
+    /^\/profile\/delete\/?$/i,
+  ];
+
+  app.use(
+    express.static(clientDistPath, {
+      index: false,
+    }),
+  );
+
+  app.get("/{*splat}", (request, response, next) => {
+    // 존재하지 않는 파일에는 React HTML을 반환하지 않습니다.
+    if (
+      extname(request.path) !== "" ||
+      !request.accepts("html")
+    ) {
+      response.status(404).end();
+      return;
+    }
+
+    const isKnownPage = pagePaths.some((pattern) =>
+      pattern.test(request.path),
+    );
+
+    // 없는 주소에도 React를 실행하여 NotFoundPage를 표시합니다.
+    response.status(isKnownPage ? 200 : 404);
+
+    response.sendFile(
+      join(clientDistPath, "index.html"),
+      {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+      },
+      (error) => {
+        if (error) {
+          next(error);
+        }
+      },
+    );
+  });
+}
+
+// 모든 라우트와 정적 파일 처리 뒤에 배치합니다.
 app.use(
   (
     error: unknown,
-    _request: Request,
+    request: Request,
     response: Response,
     next: NextFunction,
   ): void => {
@@ -70,8 +139,8 @@ app.use(
 
     console.error("Request failed", {
       status,
-      method: _request.method,
-      path: _request.path,
+      method: request.method,
+      path: request.path,
     });
 
     response.status(status).json({
@@ -82,45 +151,3 @@ app.use(
     });
   },
 );
-// 존재하지 않는 API에는 React 화면 대신 404를 반환합니다.
-app.use("/api", (_request, response) => {
-  response.status(404).json({
-    code: "API_NOT_FOUND",
-    message: "존재하지 않는 API입니다.",
-  });
-});
-
-// 배포 환경에서 빌드된 React 화면을 제공합니다.
-if (process.env.NODE_ENV === "production") {
-  const clientDistPath = fileURLToPath(
-    new URL("../../client/dist/", import.meta.url),
-  );
-
-  app.use(express.static(clientDistPath));
-
-  // React 상세 페이지를 직접 열거나 새로고침할 때 처리합니다.
-  app.get("/{*splat}", (request, response, next) => {
-    // 없는 이미지·스크립트에는 HTML을 반환하지 않습니다.
-    if (
-      extname(request.path) !== "" ||
-      !request.accepts("html")
-    ) {
-      response.status(404).end();
-      return;
-    }
-
-    response.sendFile(
-      join(clientDistPath, "index.html"),
-      {
-        headers: {
-          "Cache-Control": "no-store",
-        },
-      },
-      (error) => {
-        if (error) {
-          next(error);
-        }
-      },
-    );
-  });
-}

@@ -21,6 +21,7 @@ import {
   getRequestLoading,
   subscribeRequestLoading,
 } from "./utils/requestLoading";
+import PageTitle from "./components/layout/PageTitle";
 
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const SignupPage = lazy(() => import("./pages/SignupPage"));
@@ -36,6 +37,7 @@ const ProfilePage = lazy(() => import("./pages/ProfilePage"));
 const DeleteAccountPage = lazy(() => import("./pages/DeleteAccountPage"));
 const LogoutPage = lazy(() => import("./pages/LogoutPage"));
 const PasswordResetPage = lazy(() => import("./pages/PasswordResetPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 const LoadingOverlay = styled.div`
   position: fixed;
@@ -113,6 +115,8 @@ function App() {
 
   return (
     <>
+      <PageTitle />
+
       <div inert={isLoading || hasBootScreen}>
         <ScrollToTop />
 
@@ -238,6 +242,8 @@ function App() {
                 <Route path="/password-reset" element={<PasswordResetPage />} />
 
                 <Route path="/logout" element={<LogoutPage />} />
+
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             )}
           </Suspense>
